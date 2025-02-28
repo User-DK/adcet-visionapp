@@ -6,9 +6,8 @@ import {
   CameraType,
   CameraView,
   useCameraPermissions,
-  CameraCapturedPicture,
 } from "expo-camera";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Button,
   StyleSheet,
@@ -16,8 +15,6 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
-  Image,
-  ActivityIndicator,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 // import { VolumeManager } from 'react-native-volume-manager';
@@ -34,7 +31,8 @@ export default function Camera() {
   const [isPreview, setIsPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null); // State to keep track of interval ID
-  const [isRecording, setIsRecording] = useState(false);
+  // const [isRecording, setIsRecording] = useState(false);
+  let recording = false;
   const langList = [
     "Bangla",
     "Bengali",
@@ -77,7 +75,7 @@ export default function Camera() {
     const id = setInterval(() => {
       console.log("Timer running...");
       handleTakePhoto();
-    }, 15000); // Execute every 1 second
+    }, 20000);
     setIntervalId(id);
   };
 
@@ -89,11 +87,13 @@ export default function Camera() {
   };
 
   const handleRecording = () => {
-    if (isRecording) {
-      setIsRecording(false);
+    if (recording) {
+      // setIsRecording(false);
+      recording = false;
       stopTimer();
     } else {
-      setIsRecording(true);
+      // setIsRecording(true);
+      recording = true;
       startTimer();
     }
   };
@@ -146,7 +146,9 @@ export default function Camera() {
 
     try {
       const startTime = performance.now();
+      //https://f90f-150-129-131-188.ngrok-free.app
       const response = await fetch(
+        // "http://13.231.132.250/generate-description",
         "https://f90f-150-129-131-188.ngrok-free.app/generate-description",
         {
           method: "POST",
@@ -239,14 +241,14 @@ export default function Camera() {
           </TouchableOpacity>
         </View>
         {/* {isPreview && ( */}
-          {/* <View style={styles.previewContainer}> */}
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => audio?.replayAsync()}
-            >
-              <Text style={styles.buttonText}>Repeat Audio</Text>
-            </TouchableOpacity>
-          {/* </View> */}
+        {/* <View style={styles.previewContainer}> */}
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => audio?.replayAsync()}
+        >
+          <Text style={styles.buttonText}>Repeat Audio</Text>
+        </TouchableOpacity>
+        {/* </View> */}
         {/* )} */}
       </CameraView>
     </View>

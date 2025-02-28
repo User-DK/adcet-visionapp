@@ -117,8 +117,10 @@ export default function Camera() {
 
     try {
       const startTime = performance.now();
+      //https://f90f-150-129-131-188.ngrok-free.app
       const response = await fetch(
-        "https://f90f-150-129-131-188.ngrok-free.app/generate-description",
+        "http://13.231.132.250/generate-description",
+        // "https://f90f-150-129-131-188.ngrok-free.app/generate-description",
         {
           method: "POST",
           headers: {
@@ -147,6 +149,7 @@ export default function Camera() {
         );
         setAudio(sound);
       } else {
+        console.log(response);
         console.error("Error generating audio description");
       }
     } catch (error) {
