@@ -34,6 +34,7 @@ export default function Camera() {
   const [isPreview, setIsPreview] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null); // State to keep track of interval ID
+  const [isRecording, setIsRecording] = useState(false);
   const langList = [
     "Bangla",
     "Bengali",
@@ -68,6 +69,34 @@ export default function Camera() {
       </View>
     );
   }
+
+  const startTimer = () => {
+    if (intervalId) {
+      clearInterval(intervalId); // Clear any existing interval
+    }
+    const id = setInterval(() => {
+      console.log("Timer running...");
+      handleTakePhoto();
+    }, 15000); // Execute every 1 second
+    setIntervalId(id);
+  };
+
+  const stopTimer = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(null);
+    }
+  };
+
+  const handleRecording = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      stopTimer();
+    } else {
+      setIsRecording(true);
+      startTimer();
+    }
+  };
 
   function toggleCameraFacing() {
     setFacing((current) => (current === "back" ? "front" : "back"));
@@ -186,65 +215,40 @@ export default function Camera() {
           value={selectedLang}
         />
       </View>
-
-      {isPreview ? (
-        <View style={styles.previewContainer}>
-          {src && (
-            <Image
-              source={{ uri: `data:image/jpg;base64,${src}` }}
-              style={styles.preview}
-            />
-          )}
-          {isProcessing && (
-            <View>
-              <ActivityIndicator size="large" color="#0000ff" />
-              <Text>Processing.....</Text>
-            </View>
-          )}
-          {description && <Text>{description}</Text>}
-          {translatedText && <Text>{translatedText}</Text>}
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => audio?.replayAsync()}
-          >
-            <Text style={styles.buttonText}>Repeat Audio</Text>
+      <CameraView
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef}
+        enableTorch={torchMode}
+      >
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+            <AntDesign name="retweet" size={40} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleRetakePhoto}
-          >
-            <Text style={styles.buttonText}>Retake Photo</Text>
+            activeOpacity={0.7}
+            onPress={handleRecording}
+            style={styles.buttonmain}
+          />
+          <TouchableOpacity style={styles.button} onPress={toggleFlash}>
+            <MaterialIcons
+              name={torchMode === false ? "flash-off" : "flash-on"}
+              size={40}
+              color="white"
+            />
           </TouchableOpacity>
         </View>
-      ) : (
-        <CameraView
-          style={styles.camera}
-          facing={facing}
-          ref={cameraRef}
-          enableTorch={torchMode}
-        >
-          <View style={styles.buttonContainer}>
+        {/* {isPreview && ( */}
+          {/* <View style={styles.previewContainer}> */}
             <TouchableOpacity
-              style={styles.button}
-              onPress={toggleCameraFacing}
+              style={styles.actionButton}
+              onPress={() => audio?.replayAsync()}
             >
-              <AntDesign name="retweet" size={40} color="white" />
+              <Text style={styles.buttonText}>Repeat Audio</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={handleTakePhoto}
-              style={styles.buttonmain}
-            />
-            <TouchableOpacity style={styles.button} onPress={toggleFlash}>
-              <MaterialIcons
-                name={torchMode === false ? "flash-off" : "flash-on"}
-                size={40}
-                color="white"
-              />
-            </TouchableOpacity>
-          </View>
-        </CameraView>
-      )}
+          {/* </View> */}
+        {/* )} */}
+      </CameraView>
     </View>
   );
 }
@@ -302,6 +306,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     marginVertical: 10,
+    top: 500,
   },
   buttonText: {
     color: "white",
